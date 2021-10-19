@@ -178,7 +178,7 @@ namespace MarkdownQAGenerator
             if (content.Name == "img")
             {
                 var att = content.Attributes["src"];
-                string filepath = att.Value;
+                string filepath = "."+Path.DirectorySeparatorChar + att.Value;
                 string newFilename = att.Value.Replace(Path.DirectorySeparatorChar, '_');
                 string destinationFilepath = Path.Combine(destinationDirectory, "Media", newFilename);
                 chapter.media_files.Add(newFilename);
