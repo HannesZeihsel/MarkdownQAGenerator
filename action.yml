@@ -1,0 +1,34 @@
+name: 'MarkdownQAGenerator'
+description: 'A GitHubAction that uses a markdown file to generate question answer cards for Anki via AnkiJson'
+branding:
+  icon: refresh-cw
+  color: blue
+inputs:
+  markdown-file:
+    description:
+        'The .md file to extract the questions and answers from to generate the .json file for anki.'
+    required: true
+  destination-directory:
+    description:
+      'Where to store the generated .json and media directory for anki.'
+    required: true
+    default: '/github/workspace'
+  deck-name:
+    description:
+      'The name of the generated CrowdAnki deck.'
+    required: false
+    default: 'New Deck'
+outputs:
+  conversion-stats:
+    description:
+      'Basic info/stats about the chapters and the number of questions in each chapter.'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+  - '-f'
+  - ${{ inputs.markdown-file }}
+  - '-d'
+  - ${{ inputs.destination-directory }}
+  - '-n'
+  - ${{ inputs.deck-name }}
