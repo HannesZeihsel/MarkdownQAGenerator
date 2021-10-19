@@ -19,7 +19,8 @@ namespace MarkdownQAGenerator
         /// <param name="deckName">Name of the (root)deck.</param>
         /// <param name="logger">The logger to log data or null if no logging is required.</param>
         /// <returns>A string with infos that can be passed on to the user (line breaks in '%0A')</returns>
-        public static string GenerateAnkiJson(string markdownPath, string destinationDirectory, string deckName, ILogger? logger)
+        public static string GenerateAnkiJson(string markdownPath, string destinationDirectory, string deckName,
+            ILogger? logger)
         {
             //generate AnkiJsonRepresentation
             RootDeck rootDeck = new RootDeck(deckName);
@@ -30,7 +31,8 @@ namespace MarkdownQAGenerator
                 Environment.Exit(2);
             }
 
-            GenerateAnkiJsonRootChapter(rootDeck, content.FirstChild, destinationDirectory, logger);
+            string originDirectory = Path.GetDirectoryName(markdownPath);
+            GenerateAnkiJsonRootChapter(rootDeck, content.FirstChild, originDirectory, destinationDirectory, logger);
 
             //save AnkiJson
             string jsonPath = Path.Combine(destinationDirectory, "deck.json");
@@ -71,9 +73,11 @@ namespace MarkdownQAGenerator
         }
 
         /// <summary>
-        /// Fills the chapters of the given root chapter with the XmlNode given in content and its following sibling XmlNodes.
+        /// Fills the chapters of the given root chapter with the XmlNode given in content and its
+        /// following sibling XmlNodes.
         /// </summary>
-        private static void GenerateAnkiJsonRootChapter(RootDeck rootDeck, XmlNode? content, string destinationDirectory, ILogger? logger)
+        private static void GenerateAnkiJsonRootChapter(RootDeck rootDeck, XmlNode? content, string originDirectory,
+            string destinationDirectory, ILogger? logger)
         {
             if (content == null) return;
             do
@@ -84,7 +88,8 @@ namespace MarkdownQAGenerator
                         //new Chapter
                         Deck chapter = new Deck(content.InnerText);
 
-                        content = GenerateAnkiJsonChapter(chapter, content.NextSibling, destinationDirectory, logger)?.PreviousSibling;
+                        content = GenerateAnkiJsonChapter(chapter, content.NextSibling, originDirectory,
+                            destinationDirectory, logger)?.PreviousSibling;
 
                         logger?.LogInformation(
                             $"Found {chapter.notes.Count,3} Question(s) in Chapter '{chapter.name}'.");
@@ -104,7 +109,8 @@ namespace MarkdownQAGenerator
         /// </summary>
         /// <returns>The XmlNote at which the parsing of the markdown (converted to html) should continue.
         /// That is an element that marks the end of a chapter (other chapter or separator)</returns>
-        private static XmlNode? GenerateAnkiJsonChapter(Deck chapter, XmlNode? content, string destinationDirectory, ILogger? logger)
+        private static XmlNode? GenerateAnkiJsonChapter(Deck chapter, XmlNode? content, string originDirectory,
+            string destinationDirectory, ILogger? logger)
         {
             if (content == null) return null;
             do
@@ -116,7 +122,8 @@ namespace MarkdownQAGenerator
                     case "h2":
                         Note note = new Note(content.InnerXml);
 
-                        content = GenerateAnkiJsonNote(chapter, note, content.NextSibling, destinationDirectory, logger)?.PreviousSibling;
+                        content = GenerateAnkiJsonNote(chapter, note, content.NextSibling, originDirectory,
+                            destinationDirectory, logger)?.PreviousSibling;
 
                         chapter.notes.Add(note);
                         break;
@@ -127,6 +134,7 @@ namespace MarkdownQAGenerator
                         break;
                 }
             } while ((content = content?.NextSibling) != null);
+
             return content;
         }
 
@@ -136,7 +144,7 @@ namespace MarkdownQAGenerator
         /// <returns>The XmlNode at which the parsing of the markdown (converted to html) should continue.
         /// That is an element that marks the end of an answer (other chapter, other question or separator)</returns>
         private static XmlNode? GenerateAnkiJsonNote(Deck chapter, Note note, XmlNode? content,
-            string destinationDirectory, ILogger? logger)
+            string originDirectory, string destinationDirectory, ILogger? logger)
         {
             if (content == null) return null;
             do
@@ -150,11 +158,13 @@ namespace MarkdownQAGenerator
                     case "h2":
                         return content;
                     default:
-                        string answer = ConvertToJsonStringAndManagePictures(chapter, content, destinationDirectory, logger);
+                        string answer = ConvertToJsonStringAndManagePictures(chapter, content, originDirectory,
+                            destinationDirectory, logger);
                         note.AppendAnswer(answer);
                         break;
                 }
             } while ((content = content.NextSibling) != null);
+
             return content;
         }
 
@@ -163,9 +173,9 @@ namespace MarkdownQAGenerator
         /// handles all the files and references.
         /// </summary>
         private static string ConvertToJsonStringAndManagePictures(Deck chapter, XmlNode content,
-            string destinationDirectory, ILogger? logger)
+            string originDirectory, string destinationDirectory, ILogger? logger)
         {
-            ManagePictures(chapter, content, destinationDirectory, logger);
+            ManagePictures(chapter, content, originDirectory, destinationDirectory, logger);
             return content.OuterXml;
         }
 
@@ -173,12 +183,13 @@ namespace MarkdownQAGenerator
         /// This will change the src of any occurring pictures within the content and copies them to
         /// the appropriate folder with the new name for CrowdAnki.
         /// </summary>
-        private static void ManagePictures(Deck chapter, XmlNode content, string destinationDirectory, ILogger? logger)
+        private static void ManagePictures(Deck chapter, XmlNode content, string originDirectory,
+            string destinationDirectory, ILogger? logger)
         {
             if (content.Name == "img")
             {
                 var att = content.Attributes["src"];
-                string filepath = "."+Path.DirectorySeparatorChar + att.Value;
+                string filepath = Path.Combine(originDirectory, att.Value);
                 string newFilename = att.Value.Replace(Path.DirectorySeparatorChar, '_');
                 string destinationFilepath = Path.Combine(destinationDirectory, "Media", newFilename);
                 chapter.media_files.Add(newFilename);
@@ -195,11 +206,12 @@ namespace MarkdownQAGenerator
                     File.Copy(filepath, destinationFilepath, true);
                     logger?.LogInformation($"Media file copied from {filepath} to {destinationFilepath}");
                 }
+
                 att.Value = newFilename;
             }
             else
                 foreach (XmlNode cNode in content.ChildNodes)
-                    ManagePictures(chapter, cNode, destinationDirectory, logger);
+                    ManagePictures(chapter, cNode, originDirectory, destinationDirectory, logger);
         }
     }
 }

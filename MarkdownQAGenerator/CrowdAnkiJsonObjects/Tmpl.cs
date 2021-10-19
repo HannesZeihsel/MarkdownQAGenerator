@@ -7,7 +7,7 @@
         public string bfont { get; } = "";
         public string bqfmt { get; } = "";
         public int bsize { get; } = 0;
-        public object did { get; } = null;
+        public object? did { get; } = null;
         public string name { get; } = "Card 1";
         public int ord { get; } = 0;
         public string qfmt { get; } = "{{Front}}";
