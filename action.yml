@@ -18,6 +18,10 @@ inputs:
       'The name of the generated CrowdAnki deck.'
     required: false
     default: 'New Deck'
+  root-directory:
+    description:
+      'The root directory at which to start searching for the markdown files. (Defaults to attempt to get the root from markdown-file)'
+    required: false
 outputs:
   conversion-stats:
     description:
@@ -32,3 +36,5 @@ runs:
   - ${{ inputs.destination-directory }}
   - '-n'
   - ${{ inputs.deck-name }}
+  - '-r'
+  - ${{inputs.root-directory}}

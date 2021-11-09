@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Xml;
 using MarkdownQAGenerator.CrowdAnkiJsonObjects;
 using Markdig;
+using Microsoft.Extensions.FileSystemGlobbing;
 using Microsoft.Extensions.Logging;
 
 namespace MarkdownQAGenerator
@@ -14,26 +16,49 @@ namespace MarkdownQAGenerator
         /// <summary>
         /// Generates all the files required for the CrowdAnki representation of the given markdown file.
         /// </summary>
-        /// <param name="markdownPath">The path to the markdown file that's CrowdAnki data should be generated.</param>
+        /// <param name="markdownRegex">The regex path to the markdown file(s) that's CrowdAnki data should be generated.</param>
         /// <param name="destinationDirectory">The directory in which to save the generated files.</param>
         /// <param name="deckName">Name of the (root)deck.</param>
         /// <param name="logger">The logger to log data or null if no logging is required.</param>
+        /// <param name="rootDirectory">The root directory at which to start searching for markdown
+        /// files. If not set, attempts to get the root Directory from the markdownRegex string.</param>
         /// <returns>A string with infos that can be passed on to the user (line breaks in '%0A')</returns>
-        public static string GenerateAnkiJson(string markdownPath, string destinationDirectory, string deckName,
-            ILogger? logger)
+        public static string GenerateAnkiJson(string markdownRegex, string destinationDirectory, string deckName,
+            ILogger? logger, string? rootDirectory)
         {
             //generate AnkiJsonRepresentation
-            RootDeck rootDeck = new RootDeck(deckName);
-            var content = ConvertMarkdownToHtmlXml(markdownPath, logger);
-            if (content is null)
+            RootDeck rootDeck = new(deckName);
+
+            Matcher matcher = new();
+            matcher.AddInclude(markdownRegex);
+            if (rootDirectory is null) rootDirectory = Path.GetDirectoryName(Path.GetFullPath(markdownRegex));
+            IEnumerable<string?> files = matcher.GetResultsInFullPath(rootDirectory);
+
+            foreach (var file in files)
             {
-                logger?.LogError($"Failed to convert markdown to html: {markdownPath}");
-                Environment.Exit(2);
+                var content = ConvertMarkdownToHtmlXml(file, logger);
+                if (content is null)
+                {
+                    logger?.LogError($"Failed to convert markdown to html from file: {file}");
+                    Environment.Exit(2);
+                }
+
+                string originDirectory = Path.GetDirectoryName(file);
+                GenerateAnkiJsonFromXml(rootDeck, content.FirstChild, originDirectory, destinationDirectory, logger);
             }
 
-            string originDirectory = Path.GetDirectoryName(markdownPath);
-            GenerateAnkiJsonRootChapter(rootDeck, content.FirstChild, originDirectory, destinationDirectory, logger);
+            return SaveAnki(rootDeck, destinationDirectory, logger);
+        }
 
+        /// <summary>
+        /// Saves the given deck as an anki format. (This will assume the pictures are already saved )
+        /// </summary>
+        /// <param name="rootDeck">The root deck to save to anki.</param>
+        /// <param name="destinationDirectory"></param>
+        /// <param name="logger"></param>
+        /// <returns></returns>
+        private static string SaveAnki(RootDeck rootDeck, string destinationDirectory, ILogger? logger)
+        {
             //save AnkiJson
             string jsonPath = Path.Combine(destinationDirectory, "deck.json");
             logger.LogInformation($"Write converted data to {jsonPath}");
@@ -76,7 +101,7 @@ namespace MarkdownQAGenerator
         /// Fills the chapters of the given root chapter with the XmlNode given in content and its
         /// following sibling XmlNodes.
         /// </summary>
-        private static void GenerateAnkiJsonRootChapter(RootDeck rootDeck, XmlNode? content, string originDirectory,
+        private static void GenerateAnkiJsonFromXml(RootDeck rootDeck, XmlNode? content, string originDirectory,
             string destinationDirectory, ILogger? logger)
         {
             if (content == null) return;
@@ -86,7 +111,7 @@ namespace MarkdownQAGenerator
                 {
                     case "h1":
                         //new Chapter
-                        Deck chapter = new Deck(content.InnerText);
+                        Deck chapter = new(content.InnerText);
 
                         content = GenerateAnkiJsonChapter(chapter, content.NextSibling, originDirectory,
                             destinationDirectory, logger)?.PreviousSibling;
@@ -120,7 +145,7 @@ namespace MarkdownQAGenerator
                     case "h1":
                         return content;
                     case "h2":
-                        Note note = new Note(content.InnerXml);
+                        Note note = new(content.InnerXml);
 
                         content = GenerateAnkiJsonNote(chapter, note, content.NextSibling, originDirectory,
                             destinationDirectory, logger)?.PreviousSibling;
