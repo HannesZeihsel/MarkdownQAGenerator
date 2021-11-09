@@ -21,5 +21,11 @@ namespace MarkdownQAGenerator
             Required = false,
             HelpText = "The name of the generated CrowdAnki deck.")]
         public string DeckName { get; set; } = null!;
+
+        [Option('r', "root-directory",
+            Default = null,
+            Required = true,
+            HelpText = "The root directory at which to start searching for the markdown files.")]
+        public string RootDirectory { get; set; } = null!;
     }
 }

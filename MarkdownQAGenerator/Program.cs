@@ -36,7 +36,7 @@ static async Task StartAnkiGenerator(ActionInputs inputs, IHost host)
     if (destinationDirectory.EndsWith(Path.DirectorySeparatorChar))
         destinationDirectory = destinationDirectory.Substring(0, destinationDirectory.Length - 1);
     string infos =
-        AnkiJsonGenerator.GenerateAnkiJson(inputs.MarkDownFile, destinationDirectory, inputs.DeckName, logger);
+        AnkiJsonGenerator.GenerateAnkiJson(inputs.MarkDownFile, destinationDirectory, inputs.DeckName, logger, inputs.RootDirectory);
 
     // https://docs.github.com/actions/reference/workflow-commands-for-github-actions#setting-an-output-parameter
     Console.WriteLine($"::set-output name=conversion-stats::{infos}");
