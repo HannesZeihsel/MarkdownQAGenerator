@@ -33,9 +33,10 @@ namespace MarkdownQAGenerator
             matcher.AddInclude(markdownRegex);
             logger.LogInformation($"Root directory before setting the default: {rootDirectory}");
 
-            if (string.IsNullOrEmpty(rootDirectory)) rootDirectory = Path.GetPathRoot(Path.GetFullPath(Path.GetDirectoryName(markdownRegex)));
+            if (string.IsNullOrEmpty(rootDirectory)) rootDirectory = Path.GetPathRoot(markdownRegex);
             logger.LogInformation($"Test current {Path.GetDirectoryName(markdownRegex)}");
 
+            logger.LogInformation($"Test got root directory of path directly {Path.GetPathRoot(markdownRegex)}");
             logger.LogInformation($"Test get full path of directory not of full path {Path.GetFullPath(Path.GetDirectoryName(markdownRegex))}");
             logger.LogInformation($"Test get root of full path of directory not of full path {Path.GetPathRoot(Path.GetFullPath(Path.GetDirectoryName(markdownRegex)))}");
             logger.LogInformation($"Full path of markdown regex is {Path.GetFullPath(markdownRegex)}");
