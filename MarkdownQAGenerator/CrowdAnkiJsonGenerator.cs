@@ -34,9 +34,10 @@ namespace MarkdownQAGenerator
             logger.LogInformation($"Root directory before setting the default: {rootDirectory}");
 
             if (string.IsNullOrEmpty(rootDirectory)) rootDirectory = Path.GetPathRoot(Path.GetFullPath(Path.GetDirectoryName(markdownRegex)));
+            logger.LogInformation($"Test current {Path.GetDirectoryName(markdownRegex)}");
 
-            logger.LogInformation($"Test get directory not of full path {Path.GetDirectoryName(markdownRegex)}");
             logger.LogInformation($"Test get full path of directory not of full path {Path.GetFullPath(Path.GetDirectoryName(markdownRegex))}");
+            logger.LogInformation($"Test get root of full path of directory not of full path {Path.GetPathRoot(Path.GetFullPath(Path.GetDirectoryName(markdownRegex)))}");
             logger.LogInformation($"Full path of markdown regex is {Path.GetFullPath(markdownRegex)}");
             logger.LogInformation($"Search for markdown files at '{markdownRegex}' in directory '{rootDirectory}'");
             IEnumerable<string?> files = matcher.GetResultsInFullPath(rootDirectory);
