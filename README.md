@@ -1,8 +1,8 @@
 # MarkdownQAGenerator
 
-A GitHub action to generate question-answer style cards from a markdown file and converts them to CrowdAnki files, so they can be used with the anki app. (Other formats may be supported in the future as well.)
+A GitHub action to generate question-answer style cards from markdown files and converts them to CrowdAnki files, so they can be used with the anki app. (Other formats may be supported in the future as well.)
 
-This action will parse a given Markdown file with a specific layout that is interpreted as questions and answers separated into chapters. See [Markdown file format](#markdown-file-format) for the details on how to create those elements. Based upon this html question answer cards sorted into chapters are created that are then converted to a .json file and media files, so that they can be imported to [Anki](https://apps.ankiweb.net/) via the [CrowdAnki](https://ankiweb.net/shared/info/1788670778) Plugin.
+This action will parse the given Markdown files with a specific layout that is interpreted as questions and answers separated into chapters. See [Markdown file format](#markdown-file-format) for the details on how to create those elements. Based upon this html question answer cards sorted into chapters are created that are then converted to a .json file and media files, so that they can be imported to [Anki](https://apps.ankiweb.net/) via the [CrowdAnki](https://ankiweb.net/shared/info/1788670778) Plugin.
 
 If you want to contribute or just run the actions console application locally please take a look at the notes [here](#how-to-contribute).
 
@@ -17,21 +17,23 @@ If you want to contribute or just run the actions console application locally pl
 ```yml
 - name: Generate Anki Questions from Markdown file
   id: question-generator
-  uses: HannesZeihsel/MarkdownQAGenerator@v1
+  uses: HannesZeihsel/MarkdownQAGenerator@V1.1
   with:
     markdown-file: './questions/TestMarkdown.md'
     destination-directory: './questions/Generated/'
+    root-directory: ${{ './' }}
     deck-name: 'MarkdownQAGenerator Question Deck'
 ```
 
-You can also pin to a [specific release](https://github.com/peter-evans/create-pull-request/releases) version in the format `@v3.x.x`
+You can also pin to a [specific release](https://github.com/peter-evans/create-pull-request/releases) version in the format `@V3.x.x`
 
 ### Action inputs
 
 | Name | Description | Required/Default |
 | --- | --- | --- |
-| `file` | The markdown file to be parsed and converted. (Can be a relative path) | Required |
+| `file` | The markdown files to be parsed and converted. In regex format relative to `root-directory` | Required |
 | `destination-directory` | The directory in which the generated data is saved to | Required |
+| `root-directory` | The root directory at which to start to search for the markdown files. | Default `New Deck` |
 | `deck-name` | The name that the root deck (containing all the chapters) should have | Default `New Deck` |
 
 ### Action outputs
@@ -52,7 +54,7 @@ on:
   push:
     branches: [ master ]
     paths:
-    - 'questions/TestMarkdown.md'  #Run only if the Markdown file was changed
+    - 'questions/*.md'  #Run only if the Markdown file was changed
   workflow_dispatch:
 
 jobs:
@@ -66,8 +68,9 @@ jobs:
       id: question-generator
       uses: HannesZeihsel/MarkdownQAGenerator@v1
       with:
-        markdown-file: './questions/TestMarkdown.md'
-        destination-directory: './questions/Generated/'
+         markdown-file: './questions/*.md'
+        destination-directory: ${{ './questions/Generated/' }}
+        root-directory: ${{ './' }}
         deck-name: 'MarkdownQAGenerator Question Deck'
       
     # Create a new Pull request
