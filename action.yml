@@ -20,8 +20,8 @@ inputs:
     default: 'New Deck'
   root-directory:
     description:
-      'The root directory at which to start searching for the markdown files. (Defaults to attempt to get the root from markdown-file)'
-    required: false
+      'The root directory at which to start searching for the markdown files.'
+    required: true
 outputs:
   conversion-stats:
     description:

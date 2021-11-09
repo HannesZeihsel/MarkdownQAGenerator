@@ -24,22 +24,15 @@ namespace MarkdownQAGenerator
         /// files. If not set, attempts to get the root Directory from the markdownRegex string.</param>
         /// <returns>A string with infos that can be passed on to the user (line breaks in '%0A')</returns>
         public static string GenerateAnkiJson(string markdownRegex, string destinationDirectory, string deckName,
-            ILogger? logger, string? rootDirectory)
+            ILogger? logger, string rootDirectory)
         {
             //generate AnkiJsonRepresentation
             RootDeck rootDeck = new(deckName);
 
             Matcher matcher = new();
             matcher.AddInclude(markdownRegex);
-            logger.LogInformation($"Root directory before setting the default: {rootDirectory}");
-
+            
             if (string.IsNullOrEmpty(rootDirectory)) rootDirectory = Path.GetPathRoot(markdownRegex);
-            logger.LogInformation($"Test current {Path.GetDirectoryName(markdownRegex)}");
-
-            logger.LogInformation($"Test got root directory of path directly {Path.GetPathRoot(markdownRegex)}");
-            logger.LogInformation($"Test get full path of directory not of full path {Path.GetFullPath(Path.GetDirectoryName(markdownRegex))}");
-            logger.LogInformation($"Test get root of full path of directory not of full path {Path.GetPathRoot(Path.GetFullPath(Path.GetDirectoryName(markdownRegex)))}");
-            logger.LogInformation($"Full path of markdown regex is {Path.GetFullPath(markdownRegex)}");
             logger.LogInformation($"Search for markdown files at '{markdownRegex}' in directory '{rootDirectory}'");
             IEnumerable<string?> files = matcher.GetResultsInFullPath(rootDirectory);
 

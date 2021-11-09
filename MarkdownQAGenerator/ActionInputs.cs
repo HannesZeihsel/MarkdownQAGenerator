@@ -24,9 +24,8 @@ namespace MarkdownQAGenerator
 
         [Option('r', "root-directory",
             Default = null,
-            Required = false,
-            HelpText = "The root directory at which to start searching for the markdown files. " +
-                       "(Defaults to attempt to get the root from 'markdown-file')")]
+            Required = true,
+            HelpText = "The root directory at which to start searching for the markdown files.")]
         public string RootDirectory { get; set; } = null!;
     }
 }
