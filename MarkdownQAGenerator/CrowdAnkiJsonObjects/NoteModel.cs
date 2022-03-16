@@ -8,7 +8,7 @@ namespace MarkdownQAGenerator.CrowdAnkiJsonObjects
         public Guid crowdanki_uuid { get; } = new Guid("ccfe6806-ed3e-11eb-9d7c-00e04d766b9c");
 
         public string css { get; } =
-            ".card {\n  font-family: arial;\n  font-size: 20px;\n  text-align: left;\n  color: black;\n  background-color: white;\n}\n";
+            ".card {\n  font-family: arial;\n  font-size: 20px;\n  text-align: left;\n  color: black;\n  background-color: white;\n}\n\n.question {\n  color: white;\n  background-image: linear-gradient(to bottom, #90A788, #6C7A52);\n  padding: 0.5em;\n  border-radius: 0.2em;\n}\n\n.solution {\n  color: black;\n  padding: 0.3em;\n}";
 
         public Fld[] flds { get; } = { new Fld("Front", 0), new Fld("Back", 1) };
         public string latexPost { get; } = "\\end{document}";
