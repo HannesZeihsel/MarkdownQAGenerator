@@ -148,7 +148,7 @@ namespace MarkdownQAGenerator
                         return content;
                     case "h2":
                         Note note = new(ConvertToJsonStringAndManagePictures(chapter, content, originDirectory,
-                            destinationDirectory, logger);
+                            destinationDirectory, logger));
 
                         content = GenerateAnkiJsonNote(chapter, note, content.NextSibling, originDirectory,
                             destinationDirectory, logger)?.PreviousSibling;
