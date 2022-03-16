@@ -4,6 +4,7 @@ A GitHub action to generate question-answer style cards from markdown files and 
 
 This action will parse the given Markdown files with a specific layout that is interpreted as questions and answers separated into chapters. See [Markdown file format](#markdown-file-format) for the details on how to create those elements. Based upon this html question answer cards sorted into chapters are created that are then converted to a .json file and media files, so that they can be imported to [Anki](https://apps.ankiweb.net/) via the [CrowdAnki](https://ankiweb.net/shared/info/1788670778) Plugin.
 
+
 If you want to contribute or just run the actions console application locally please take a look at the notes [here](#how-to-contribute).
 
 :warning: **This GitHub action is still under development and not very well tested!**  Feel free to use it but be advised it may not work as intended. If you encounter any problems, please open an issue so they can be investigated.
@@ -17,7 +18,7 @@ If you want to contribute or just run the actions console application locally pl
 ```yml
 - name: Generate Anki Questions from Markdown file
   id: question-generator
-  uses: HannesZeihsel/MarkdownQAGenerator@V1.1
+  uses: HannesZeihsel/MarkdownQAGenerator@V1.1.0
   with:
     markdown-file: './questions/TestMarkdown.md'
     destination-directory: './questions/Generated/'
@@ -66,7 +67,7 @@ jobs:
         
     - name: Generate Anki Questions from Markdownfile
       id: question-generator
-      uses: HannesZeihsel/MarkdownQAGenerator@v1
+      uses: HannesZeihsel/MarkdownQAGenerator@V1.1.0
       with:
          markdown-file: './questions/*.md'
         destination-directory: ${{ './questions/Generated/' }}
