@@ -183,7 +183,8 @@ namespace MarkdownQAGenerator
                     case "h1":
                         return content;
                     case "h2":
-                        return content;
+                        return ConvertToJsonStringAndManagePictures(chapter, content, originDirectory,
+                            destinationDirectory, logger);
                     default:
                         string answer = ConvertToJsonStringAndManagePictures(chapter, content, originDirectory,
                             destinationDirectory, logger);
