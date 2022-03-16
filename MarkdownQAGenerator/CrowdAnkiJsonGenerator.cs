@@ -33,7 +33,7 @@ namespace MarkdownQAGenerator
             matcher.AddInclude(markdownRegex);
             
             if (string.IsNullOrEmpty(rootDirectory)) rootDirectory = Path.GetPathRoot(markdownRegex);
-            logger.LogInformation($"Search for markdown files at '{markdownRegex}' in directory '{rootDirectory}'");
+            logger?.LogInformation($"Search for markdown files at '{markdownRegex}' in directory '{rootDirectory}'");
             IEnumerable<string?> files = matcher.GetResultsInFullPath(rootDirectory);
 
             foreach (var file in files)
@@ -63,7 +63,7 @@ namespace MarkdownQAGenerator
         {
             //save AnkiJson
             string jsonPath = Path.Combine(destinationDirectory, "deck.json");
-            logger.LogInformation($"Write converted data to {jsonPath}");
+            logger?.LogInformation($"Write converted data to {jsonPath}");
             Directory.CreateDirectory(Path.GetDirectoryName(jsonPath));
             var opts = new JsonSerializerOptions(JsonSerializerDefaults.General)
             {
@@ -87,10 +87,10 @@ namespace MarkdownQAGenerator
                 Environment.Exit(2);
             }
 
-            logger.LogInformation($"Loading Markdown file at {markdownPath}.");
+            logger?.LogInformation($"Loading Markdown file at {markdownPath}.");
             var xml = new XmlDocument();
             xml.LoadXml("<main>" + ConvertMarkdownToHtml(File.ReadAllText(markdownPath)) + "</main>");
-            logger.LogInformation($"Converted Markdown to html");
+            logger?.LogInformation($"Converted Markdown to html");
             return xml["main"];
         }
 
